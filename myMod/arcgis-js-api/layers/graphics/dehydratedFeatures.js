@@ -1,0 +1,25 @@
+// COPYRIGHT © 2018 Esri
+//
+// All rights reserved under the copyright laws of the United States
+// and applicable international laws, treaties, and conventions.
+//
+// This material is licensed for use under the Esri Master License
+// Agreement (MLA), and is bound by the terms of that agreement.
+// You may redistribute and use this code without modification,
+// provided you adhere to the terms of the MLA and include this
+// copyright notice.
+//
+// See use restrictions at http://www.esri.com/legal/pdfs/mla_e204_e300/english
+//
+// For additional information, contact:
+// Environmental Systems Research Institute, Inc.
+// Attn: Contracts and Legal Services Department
+// 380 New York Street
+// Redlands, California, USA 92373
+// USA
+//
+// email: contracts@esri.com
+//
+// See http://js.arcgis.com/4.9/esri/copyright.txt for details.
+
+define(["require","exports","../../Graphic","../../core/lang","../../geometry/SpatialReference","../../geometry/support/aaBoundingBox","../../geometry/support/aaBoundingRect","../../geometry/support/quantizationUtils","./dehydratedFeatureComparison"],function(e,a,t,r,n,s,i,o,m){function p(e){return"point"===e.type}function y(e){switch(e){case"esriGeometryPoint":return"point";case"esriGeometryMultipoint":return"multipoint";case"esriGeometryPolyline":return"polyline";case"esriGeometryPolygon":return"polygon";case"esriGeometryEnvelope":return"extent"}}function h(e){var a=y(e.geometryType),t=n.fromJSON(e.spatialReference),r=e.transform;return e.features.map(function(n){var s=l(n,a,t,e.objectIdFieldName),i=s.geometry;if(i&&r)switch(i.type){case"point":s.geometry=o.hydratePoint(r,i,i,i.hasZ,i.hasM);break;case"multipoint":s.geometry=o.hydrateMultipoint(r,i,i,i.hasZ,i.hasM);break;case"polygon":s.geometry=o.hydratePolygon(r,i,i,i.hasZ,i.hasM);break;case"polyline":s.geometry=o.hydratePolyline(r,i,i,i.hasZ,i.hasM)}return s})}function l(e,a,r,n){return{uid:t.generateUID(),objectId:n&&e.attributes?e.attributes[n]:null,attributes:e.attributes,geometry:c(e.geometry,a,r),visible:!0}}function c(e,a,t){if(!e)return null;switch(a){case"point":var r=e,n={x:r.x,y:r.y,z:r.z,m:r.m,hasZ:null!=r.z,hasM:null!=r.m,type:a,spatialReference:t};return n;case"polyline":var s=e,n={paths:s.paths,hasZ:!!s.hasZ,hasM:!!s.hasM,type:a,spatialReference:t};return n;case"polygon":var i=e,n={rings:i.rings,hasZ:!!i.hasZ,hasM:!!i.hasM,type:a,spatialReference:t};return n;case"multipoint":var o=e,n={points:o.points,hasZ:!!o.hasZ,hasM:!!o.hasM,type:a,spatialReference:t};return n;case"extent":var m=e,n={xmin:m.xmin,ymin:m.ymin,zmin:m.zmin,mmin:m.mmin,xmax:m.xmax,ymax:m.ymax,zmax:m.zmax,mmax:m.mmax,hasZ:!!m.hasZ,hasM:!!m.hasM,type:a,spatialReference:t};return n}}function u(e,a,t,r){return{x:e,y:a,z:t,hasZ:null!=t,hasM:!1,spatialReference:r,type:"point"}}function x(e){return"declaredClass"in e}function f(e){return"declaredClass"in e}function d(e,a){if(!e||f(e))return e;var n=new t({layer:a,sourceLayer:a});return n.visible=e.visible,n.symbol=r.clone(e.symbol),n.attributes=r.clone(e.attributes),e.geometry&&("mesh"===e.geometry.type?n.geometry=e.geometry:n.read({geometry:g(e.geometry)})),n}function g(e){var a=e.spatialReference.toJSON();switch(e.type){case"point":return{x:e.x,y:e.y,z:e.z,m:e.m,spatialReference:a};case"polygon":var t=e.rings,r=e.hasZ,n=e.hasM;return{rings:t,hasZ:r,hasM:n,spatialReference:a};case"polyline":var s=e.paths,r=e.hasZ,n=e.hasM;return{paths:s,hasZ:r,hasM:n,spatialReference:a};case"extent":var i=e.xmin,o=e.xmax,m=e.ymin,p=e.ymax,y=e.zmin,h=e.zmax,l=e.mmin,c=e.mmax,r=e.hasZ,n=e.hasM;return{xmin:i,xmax:o,ymin:m,ymax:p,zmin:y,zmax:h,mmin:l,mmax:c,hasZ:r,hasM:n,spatialReference:a};case"multipoint":var u=e.points,r=e.hasZ,n=e.hasM;return{points:u,hasZ:r,hasM:n,spatialReference:a}}}function Z(e,a){switch(s.empty(a),"mesh"===e.type&&(e=e.extent),e.type){case"point":a[0]=a[3]=e.x,a[1]=a[4]=e.y,e.hasZ&&(a[2]=a[5]=e.z);break;case"polyline":for(var t=0;t<e.paths.length;t++)s.expandWithNestedArray(a,e.paths[t],e.hasZ);break;case"polygon":for(var t=0;t<e.rings.length;t++)s.expandWithNestedArray(a,e.rings[t],e.hasZ);break;case"multipoint":s.expandWithNestedArray(a,e.points,e.hasZ);break;case"extent":a[0]=e.xmin,a[1]=e.ymin,a[3]=e.xmax,a[4]=e.ymax,null!=e.zmin&&(a[2]=e.zmin),null!=e.zmax&&(a[5]=e.zmax)}}function b(e,a){Z(e,z),s.expand(a,z)}function M(e,a){switch(i.empty(a),"mesh"===e.type&&(e=e.extent),e.type){case"point":a[0]=a[2]=e.x,a[1]=a[3]=e.y;break;case"polyline":for(var t=0;t<e.paths.length;t++)i.expandWithNestedArray(a,e.paths[t]);break;case"polygon":for(var t=0;t<e.rings.length;t++)i.expandWithNestedArray(a,e.rings[t]);break;case"multipoint":i.expandWithNestedArray(a,e.points);break;case"extent":a[0]=e.xmin,a[1]=e.ymin,a[2]=e.xmax,a[3]=e.ymax}}function v(e,a){M(e,R),i.expand(a,R)}Object.defineProperty(a,"__esModule",{value:!0}),a.equals=m.equals,a.isPoint=p,a.mapJSONGeometryType=y,a.fromFeatureSetJSON=h,a.fromJSON=l,a.fromJSONGeometry=c,a.makeDehydratedPoint=u,a.isHydratedGeometry=x,a.isHydratedGraphic=f,a.hydrateGraphic=d,a.computeAABB=Z,a.expandAABB=b,a.computeAABR=M,a.expandAABR=v;var z=s.create(),R=i.create()});

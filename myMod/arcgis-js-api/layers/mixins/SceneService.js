@@ -1,0 +1,35 @@
+// COPYRIGHT © 2018 Esri
+//
+// All rights reserved under the copyright laws of the United States
+// and applicable international laws, treaties, and conventions.
+//
+// This material is licensed for use under the Esri Master License
+// Agreement (MLA), and is bound by the terms of that agreement.
+// You may redistribute and use this code without modification,
+// provided you adhere to the terms of the MLA and include this
+// copyright notice.
+//
+// See use restrictions at http://www.esri.com/legal/pdfs/mla_e204_e300/english
+//
+// For additional information, contact:
+// Environmental Systems Research Institute, Inc.
+// Attn: Contracts and Legal Services Department
+// 380 New York Street
+// Redlands, California, USA 92373
+// USA
+//
+// email: contracts@esri.com
+//
+// See http://js.arcgis.com/4.9/esri/copyright.txt for details.
+
+//  copyright
+
+/**
+             * The copyright text as defined by the scene service.
+             *
+             * @memberof module:esri/layers/mixins/SceneService
+             * @name copyright
+             * @type {string}
+             */
+
+define(["require","exports","../../core/tsSupport/declareExtendsHelper","../../core/tsSupport/decorateHelper","../../request","../../core/Error","../../core/Logger","../../core/MultiOriginJSONSupport","../../core/promiseUtils","../../core/urlUtils","../../core/accessorSupport/decorators","../../geometry/Extent","../../geometry/HeightModelInfo","../../geometry/SpatialReference","../Layer","./ArcGISService","./OperationalLayer","./PortalLayer","../support/arcgisLayerUrl"],function(e,t,r,o,n,i,l,a,p,s,u,d,y,c,f,h,v,m,g){var S=l.getLogger("esri.layers.mixins.SceneService");return function(e){function t(){var t=null!==e&&e.apply(this,arguments)||this;return t.blendMode=null,t.spatialReference=null,t.fullExtent=null,t.heightModelInfo=null,t.version={major:Number.NaN,minor:Number.NaN,versionString:""},t.copyright=null,t.sublayerTitleMode="item-title",t.title=null,t.layerId=null,t}return r(t,e),t.prototype.readSpatialReference=function(e,t){return this._readSpatialReference(t)},t.prototype._readSpatialReference=function(e){if(null!=e.spatialReference)return c.fromJSON(e.spatialReference);var t=e.store,r=t.indexCRS||t.geographicCRS,o=r&&parseInt(r.substring(r.lastIndexOf("/")+1,r.length),10);return null!=o?new c(o):null},t.prototype.readFullExtent=function(e,t){var r=t.store,o=this._readSpatialReference(t);return null==o||null==r||null==r.extent?null:new d({xmin:r.extent[0],ymin:r.extent[1],xmax:r.extent[2],ymax:r.extent[3],spatialReference:o})},t.prototype.readVersion=function(e,t){var r=t.store,o=null!=r.version?r.version.toString():"",n={major:Number.NaN,minor:Number.NaN,versionString:o},i=o.split(".");return i.length>=2&&(n.major=parseInt(i[0],10),n.minor=parseInt(i[1],10)),n},t.prototype.readTitlePortalItem=function(e,t){return"item-title"!==this.sublayerTitleMode?void 0:e},t.prototype.readTitleService=function(e,t){var r=this.portalItem&&this.portalItem.title;if("item-title"===this.sublayerTitleMode)return g.titleFromUrlAndName(this.url,t.name);var o=t.name||g.parse(this.url).title;return"item-title-and-service-name"===this.sublayerTitleMode&&r&&(o=r+" - "+o),g.cleanTitle(o)},t.prototype.readLayerId=function(e,t){return t.id},Object.defineProperty(t.prototype,"url",{set:function(e){var t=g.sanitizeUrlWithLayerId(this,e,S);this._set("url",t.url),null!=t.layerId&&this._set("layerId",t.layerId)},enumerable:!0,configurable:!0}),t.prototype.writeUrl=function(e,t){g.writeUrlWithLayerId(this,e,"layers",t)},Object.defineProperty(t.prototype,"parsedUrl",{get:function(){var e=this._get("url");if(!e)return null;var t=s.urlToObject(e);return null!=this.layerId&&g.match.test(t.path)&&(t.path=t.path+"/layers/"+this.layerId),t},enumerable:!0,configurable:!0}),t.prototype.readRootNode=function(e,t){return t.store.rootNode},t.prototype._verifyRootNodeAndUpdateExtent=function(){var e=this;return this._fetchRootNode().then(function(t){return e._updateExtentFromRootNode(t)})},t.prototype._updateExtentFromRootNode=function(e){if(null!=this.fullExtent&&!this.fullExtent.hasZ&&null!=e&&Array.isArray(e.mbs)&&4===e.mbs.length){var t=e.mbs[2],r=e.mbs[3];this.fullExtent.zmin=t-r,this.fullExtent.zmax=t+r}},t.prototype._fetchRootNode=function(){if(!this.rootNode)return p.resolve();var e=s.join(this.parsedUrl.path,this.rootNode);return n(e,{query:{f:"json"},responseType:"json"}).then(function(e){return e.data}).catch(function(t){throw new i("sceneservice:root-node-missing","Root node missing.",{error:t,url:e})})},t.prototype._fetchService=function(){var e,t=this;return e=null==this.layerId&&/SceneServer\/*$/i.test(this.url)?this._fetchFirstLayerId().then(function(e){null!=e&&(t.layerId=e)}):p.resolve(),e.then(function(){return t._fetchServiceLayer()})},t.prototype._fetchFirstLayerId=function(){return n(this.url,{query:{f:"json"},responseType:"json"}).then(function(e){if(e.data&&Array.isArray(e.data.layers)&&e.data.layers.length>0)return e.data.layers[0].id})},t.prototype._fetchServiceLayer=function(){var e=this;return n(this.parsedUrl.path,{query:{f:"json"},responseType:"json"}).then(function(t){t.ssl&&(e.url=e.url.replace(/^http:/i,"https:"));var r=t.data;e.read(r,{origin:"service",url:e.parsedUrl}),e._validateLayer(r)})},t.prototype._validateLayer=function(e){},o([u.shared({id:{json:{origins:{service:{read:!1},"portal-item":{read:!1}}}}})],t.prototype,"properties",void 0),o([u.property({type:c})],t.prototype,"spatialReference",void 0),o([u.reader("spatialReference",["spatialReference","store.indexCRS","store.geographicCRS"])],t.prototype,"readSpatialReference",null),o([u.property({type:d})],t.prototype,"fullExtent",void 0),o([u.reader("fullExtent",["store.extent","spatialReference","store.indexCRS","store.geographicCRS"])],t.prototype,"readFullExtent",null),o([u.property({readOnly:!0,type:y})],t.prototype,"heightModelInfo",void 0),o([u.property({readOnly:!0})],t.prototype,"version",void 0),o([u.reader("version",["store.version"])],t.prototype,"readVersion",null),o([u.property({type:String,json:{read:{source:"copyrightText"}}})],t.prototype,"copyright",void 0),o([u.property({type:String})],t.prototype,"sublayerTitleMode",void 0),o([u.property({type:String})],t.prototype,"title",void 0),o([u.reader("portal-item","title")],t.prototype,"readTitlePortalItem",null),o([u.reader("service","title",["name"])],t.prototype,"readTitleService",null),o([u.property({type:Number})],t.prototype,"layerId",void 0),o([u.reader("service","layerId",["id"])],t.prototype,"readLayerId",null),o([u.property()],t.prototype,"url",null),o([u.writer("url")],t.prototype,"writeUrl",null),o([u.property({dependsOn:["layerId"]})],t.prototype,"parsedUrl",null),o([u.property()],t.prototype,"store",void 0),o([u.property({type:String})],t.prototype,"rootNode",void 0),o([u.reader("rootNode",["store.rootNode"])],t.prototype,"readRootNode",null),t=o([u.subclass("esri.layers.mixins.SceneService")],t)}(u.declared(f,h,a,v,m))});
